@@ -20,7 +20,9 @@ if not os.path.isdir(path):
 
 hiddenimports_list=[
     'matplotlib.backends.backend_pdf',
-    'matplotlib.backends.backend_svg'
+    'matplotlib.backends.backend_svg',
+    'keyring.backends.SecretService',
+    'keyring.backends.libsecret'
 ]
 
 a = Analysis(['artisan.py'],

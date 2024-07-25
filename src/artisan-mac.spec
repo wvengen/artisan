@@ -99,10 +99,14 @@ yocto_lib_path = os.path.join(get_package_paths('yoctopuce')[1], 'cdll')
 BINARIES.extend([(os.path.join(yocto_lib_path, fn),'yoctopuce/cdll') for fn in os.listdir(yocto_lib_path) if fn.endswith('.dylib')])
 # brew installed libusb is added automatically by pyinstaller
 
+hiddenimports_list=[
+    'keyring.backends.macOS'
+]
+
 a = Analysis(['artisan.py'],
              binaries=BINARIES,
              datas=DATA_FILES,
-             hiddenimports=[],
+             hiddenimports=hiddenimports_list,
              hookspath=[],
              runtime_hooks=[],
              excludes= [],
