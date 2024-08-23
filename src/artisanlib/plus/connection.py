@@ -39,7 +39,7 @@ import platform
 import logging
 import dateutil.parser
 
-from plus import config, account, util
+from . import config, account, util
 
 _log: Final[logging.Logger] = logging.getLogger(__name__)
 

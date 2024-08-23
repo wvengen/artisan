@@ -32,9 +32,9 @@ from datetime import datetime, timezone
 from enum import Enum
 from artisanlib.util import getResourcePath
 from artisanlib.qtsingleapplication import QtSingleApplication
-import plus.util
-import plus.connection
-import plus.config
+from .plus import util as plus_util
+from .plus import connection as plus_connection
+from .plus import config as plus_config
 
 from typing import Final, Optional, List, Union
 
@@ -119,8 +119,8 @@ class Notification:
 def sendPlusNotificationSeen(hr_id:str, date:datetime) -> None:
     _log.debug('sendPlusNotificationSeen(%s,%s)', hr_id, date.isoformat())
     try:
-        plus.connection.sendData(
-            f'{plus.config.notifications_url}/seen/{hr_id}',
+        plus_connection.sendData(
+            f'{plus_config.notifications_url}/seen/{hr_id}',
             { 'date' : date.isoformat()},
             'PUT')
     except Exception as e: # pylint: disable=broad-except
@@ -209,16 +209,16 @@ class NotificationManager(QObject): # pyright: ignore [reportGeneralTypeIssues]
                     elif self.active_notification.type in [NotificationType.PLUS_SYSTEM, NotificationType.PLUS_ADMIN, NotificationType.PLUS_ADVERT]:
                         if self.active_notification.link is None:
                             # open artisan.plus
-                            QDesktopServices.openUrl(QUrl(plus.util.plusLink()))
+                            QDesktopServices.openUrl(QUrl(plus_util.plusLink()))
                         else:
                             try:
                                 QDesktopServices.openUrl(QUrl(self.active_notification.link))
                             except Exception:  # pylint: disable=broad-except
                                 # if given link URL is not valid still open artisan.plus
-                                QDesktopServices.openUrl(QUrl(plus.util.plusLink()))
+                                QDesktopServices.openUrl(QUrl(plus_util.plusLink()))
                     elif self.active_notification.type == NotificationType.PLUS_REMINDER:
                         # open artisan.plus reminder tab
-                        QDesktopServices.openUrl(QUrl(plus.util.remindersLink()))
+                        QDesktopServices.openUrl(QUrl(plus_util.remindersLink()))
                 except Exception:  # pylint: disable=broad-except
                     pass
                 if self.active_notification.id:

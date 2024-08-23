@@ -45,8 +45,8 @@ if TYPE_CHECKING:
     from artisanlib.comm import serialport # pylint: disable=unused-import
     from artisanlib.types import ProfileData, EnergyMetrics, BTU, AlarmSet # pylint: disable=unused-import
     from artisanlib.main import ApplicationWindow # pylint: disable=unused-import
-    from plus.stock import Blend # pylint: disable=unused-import
-    from plus.blend import CustomBlend # pylint: disable=unused-import
+    from .plus.stock import Blend # pylint: disable=unused-import
+    from .plus.blend import CustomBlend # pylint: disable=unused-import
     from matplotlib.collections import PolyCollection # pylint: disable=unused-import
     from matplotlib.axes import Axes # pylint: disable=unused-import
     from matplotlib.axes._base import _AxesBase # pylint: disable=unused-import
@@ -70,8 +70,8 @@ from artisanlib.types import BTBreakParams
 from artisanlib.types import BbpCache
 
 # import artisan.plus module
-from plus.util import roastLink
-from plus.queue import addRoast, sendLockSchedule
+from .plus.util import roastLink
+from .plus.queue import addRoast, sendLockSchedule
 
 try:
     #pylint: disable-next = E, W, R, C
@@ -1456,7 +1456,7 @@ class tgraphcanvas(FigureCanvas):
         self.plus_blend_spec:Optional[Blend] = None # the plus blend structure [<blend_label>,[[<coffee_label>,<hr_id>,<ratio>],...,[<coffee_label>,<hr_id>,<ratio>]]] # label + ingredients
         self.plus_blend_spec_labels:Optional[List[str]] = None # a list of labels as long as the list of ingredients in self.plus_blend_spec or None
         self.plus_blend_label:Optional[str] = None # holds the plus selected label of the selected blend of the current profile or None
-        self.plus_custom_blend:Optional[CustomBlend] = None # holds the one custom blend, an instance of plus.blend.Blend, or None
+        self.plus_custom_blend:Optional[CustomBlend] = None # holds the one custom blend, an instance of plus_blend.Blend, or None
         self.plus_sync_record_hash:Optional[str] = None
         self.plus_file_last_modified:Optional[float] = None # holds the last_modified timestamp of the loaded profile as EPOCH (float incl. milliseconds as returned by time.time())
         # plus_file_last_modified is set on load, reset on RESET, and updated on save. It is also update, if not None and new data is received from the server (sync:applyServerUpdates)

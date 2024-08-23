@@ -32,7 +32,7 @@ except Exception: # pylint: disable=broad-except
 
 from pathlib import Path
 from artisanlib.util import getDirectory, weight_units, convertWeight
-from plus import config, util, connection, controller, roast, stock
+from . import config, util, connection, controller, roast, stock
 import os
 import time
 import logging

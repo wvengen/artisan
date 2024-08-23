@@ -57,18 +57,18 @@ if TYPE_CHECKING:
     from PyQt6.QtGui import (QDragEnterEvent, QDragLeaveEvent, QDragMoveEvent, QDropEvent, QCloseEvent,  # noqa: F401 # pylint: disable=unused-import
         QResizeEvent, QPaintEvent, QEnterEvent, QMouseEvent, QTextDocument, QKeyEvent) # noqa: F401 # pylint: disable=unused-import
     from PyQt6.QtWidgets import QLayout, QLayoutItem, QBoxLayout # noqa: F401 # pylint: disable=unused-import
-    from plus.weight import WeightItem
+    from .plus.weight import WeightItem
 
 
-import plus.register
-import plus.controller
-import plus.connection
-import plus.stock
-import plus.config
-import plus.sync
-import plus.util
-from plus.util import datetime2epoch, epoch2datetime, schedulerLink, epoch2ISO8601, ISO86012epoch, plusLink
-from plus.weight import Display, WeightManager, GreenWeightItem, RoastedWeightItem
+from . import register as plus_register
+from . import controller as plus_controller
+from . import connection as plus_connection
+from . import stock as plus_stock
+from . import config as plus_config
+from . import sync as plus_sync
+from . import util as plus_util
+from .util import datetime2epoch, epoch2datetime, schedulerLink, epoch2ISO8601, ISO86012epoch, plusLink
+from .weight import Display, WeightManager, GreenWeightItem, RoastedWeightItem
 from artisanlib.widgets import ClickableQLabel, ClickableQLineEdit, Splitter
 from artisanlib.dialogs import ArtisanResizeablDialog
 from artisanlib.util import (float2float, convertWeight, weight_units, render_weight, comma2dot, float2floatWeightVolume, getDirectory)
@@ -83,13 +83,13 @@ prepared_items_semaphore = QSemaphore(
     1
 )  # protects access to the prepared_items_cache_path file and the prepared_items dict
 
-prepared_items_cache_path = getDirectory(plus.config.prepared_items_cache)
+prepared_items_cache_path = getDirectory(plus_config.prepared_items_cache)
 
 completed_roasts_semaphore = QSemaphore(
     1
 )  # protects access to the completed_roasts_cache file and the completed_roasts dict
 
-completed_roasts_cache_path = getDirectory(plus.config.completed_roasts_cache)
+completed_roasts_cache_path = getDirectory(plus_config.completed_roasts_cache)
 
 
 ## Configuration
@@ -637,19 +637,19 @@ def set_unprepared(plus_account_id:Optional[str], item:ScheduledItem) -> None:
 def scheduleditem_beans_description(weight_unit_idx:int, item:ScheduledItem) -> str:
     beans_description:str = ''
     if item.coffee is not None:
-        coffee = plus.stock.getCoffee(item.coffee)
+        coffee = plus_stock.getCoffee(item.coffee)
         if coffee is not None:
-            store_label:str = plus.stock.getLocationLabel(coffee, item.store)
+            store_label:str = plus_stock.getLocationLabel(coffee, item.store)
             if store_label != '':
                 store_label = f'<br>[{html.escape(store_label)}]'
-            beans_description = f'<b>{html.escape(plus.stock.coffeeLabel(coffee))}</b>{store_label}'
+            beans_description = f'<b>{html.escape(plus_stock.coffeeLabel(coffee))}</b>{store_label}'
     else:
-        blends = plus.stock.getBlends(weight_unit_idx, item.store)
-        blend = next((b for b in blends if plus.stock.getBlendId(b) == item.blend and plus.stock.getBlendStockDict(b)['location_hr_id'] == item.store), None)
+        blends = plus_stock.getBlends(weight_unit_idx, item.store)
+        blend = next((b for b in blends if plus_stock.getBlendId(b) == item.blend and plus_stock.getBlendStockDict(b)['location_hr_id'] == item.store), None)
         if blend is not None:
             blend_lines = ''.join([f'<tr><td>{html.escape(bl[0])}</td><td>{html.escape(bl[1])}</td></tr>'
-                        for bl in plus.stock.blend2weight_beans(blend, weight_unit_idx, item.weight)])
-            beans_description = f"<b>{html.escape(plus.stock.getBlendName(blend))}</b> [{html.escape(plus.stock.getBlendStockDict(blend)['location_label'])}]<table>{blend_lines}</table>"
+                        for bl in plus_stock.blend2weight_beans(blend, weight_unit_idx, item.weight)])
+            beans_description = f"<b>{html.escape(plus_stock.getBlendName(blend))}</b> [{html.escape(plus_stock.getBlendStockDict(blend)['location_label'])}]<table>{blend_lines}</table>"
     return beans_description
 
 def completeditem_beans_description(weight_unit_idx:int, item:CompletedItem) -> str:
@@ -977,7 +977,7 @@ class DragItem(StandardItem):
             # date formatted according to the locale without the year
             task_date = format_date(date_local, format='long', locale=self.aw.locale_str).replace(format_date(date_local, 'Y', locale=self.aw.locale_str),'').strip().rstrip(',')
 
-        user_nickname:Optional[str] = plus.connection.getNickname()
+        user_nickname:Optional[str] = plus_connection.getNickname()
         task_operator = (QApplication.translate('Plus', 'by anybody') if self.data.user is None else
             (f"{QApplication.translate('Plus', 'by')} {(html.escape(user_nickname) if user_nickname is not None else '')}" if self.user_id is not None and self.data.user == self.user_id else
                 (f"{QApplication.translate('Plus', 'by')} {html.escape(self.data.nickname)}" if self.data.nickname is not None else
@@ -1693,7 +1693,7 @@ class ScheduleWindow(ArtisanResizeablDialog): # pyright:ignore[reportGeneralType
 
         disconnected_widget = QLabel()
         disconnected_widget.setTextFormat(Qt.TextFormat.RichText)
-        disconnected_widget.setText(QApplication.translate('Plus', 'Login to {} to receive your roast schedule').format(f'<a href="{plusLink()}">{plus.config.app_name}</a>'))
+        disconnected_widget.setText(QApplication.translate('Plus', 'Login to {} to receive your roast schedule').format(f'<a href="{plusLink()}">{plus_config.app_name}</a>'))
         disconnected_widget.setWordWrap(True)
         disconnected_widget.setTextInteractionFlags(Qt.TextInteractionFlag.TextBrowserInteraction)
         disconnected_widget.linkActivated.connect(self.disconnected_link_handler)
@@ -1747,7 +1747,7 @@ class ScheduleWindow(ArtisanResizeablDialog): # pyright:ignore[reportGeneralType
         self.weight_item_display:WeightItemDisplay = WeightItemDisplay(self)
         self.weight_manager:WeightManager = WeightManager([self.weight_item_display])
 
-        plus.stock.update() # explicit update stock on opening the scheduler
+        plus_stock.update() # explicit update stock on opening the scheduler
         self.updateScheduleWindow()
 
         # set all child's to NoFocus to receive the up/down arrow key events in keyPressEvent
@@ -1845,7 +1845,7 @@ class ScheduleWindow(ArtisanResizeablDialog): # pyright:ignore[reportGeneralType
 
     @pyqtSlot(str)
     def disconnected_link_handler(self, _link:str) -> None:
-        plus.controller.toggle(self.aw)
+        plus_controller.toggle(self.aw)
 
     def set_next(self) -> None:
         self.weight_manager.set_next(self.get_next_weight_item())
@@ -2018,12 +2018,12 @@ class ScheduleWindow(ArtisanResizeablDialog): # pyright:ignore[reportGeneralType
         today = datetime.datetime.now(datetime.timezone.utc).astimezone().date()
         # remove outdated items which remained in the open app from yesterday
         current_schedule:List[ScheduledItem] = [si for si in self.scheduled_items if (si.date - today).days >= 0]
-        plus.stock.init()
-        schedule:List[plus.stock.ScheduledItem] = plus.stock.getSchedule()
+        plus_stock.init()
+        schedule:List[plus_stock.ScheduledItem] = plus_stock.getSchedule()
         _log.debug('schedule: %s',schedule)
         # sort current schedule by order cache (if any)
         if self.aw.scheduled_items_uuids != []:
-            new_schedule:List[plus.stock.ScheduledItem] = []
+            new_schedule:List[plus_stock.ScheduledItem] = []
             for uuid in self.aw.scheduled_items_uuids:
                 item = next((s for s in schedule if '_id' in s and s['_id'] == uuid), None)
                 if item is not None:
@@ -2104,22 +2104,22 @@ class ScheduleWindow(ArtisanResizeablDialog): # pyright:ignore[reportGeneralType
         self.aw.qmc.plus_blend_spec_labels = None
         self.aw.qmc.beans = ''
         # set store/coffee/blend
-        store_item:Optional[Tuple[str, str]] = plus.stock.getStoreItem(item.store, plus.stock.getStores())
+        store_item:Optional[Tuple[str, str]] = plus_stock.getStoreItem(item.store, plus_stock.getStores())
         if store_item is not None:
             self.aw.qmc.plus_store = item.store
-            self.aw.qmc.plus_store_label = plus.stock.getStoreLabel(store_item)
+            self.aw.qmc.plus_store_label = plus_stock.getStoreLabel(store_item)
             if item.coffee is not None:
-                coffee = plus.stock.getCoffee(item.coffee)
+                coffee = plus_stock.getCoffee(item.coffee)
                 if coffee is not None:
                     self.aw.qmc.plus_coffee = item.coffee
-                    self.aw.qmc.plus_coffee_label = plus.stock.coffeeLabel(coffee)
-                    self.aw.qmc.beans = plus.stock.coffee2beans(coffee)
+                    self.aw.qmc.plus_coffee_label = plus_stock.coffeeLabel(coffee)
+                    self.aw.qmc.beans = plus_stock.coffee2beans(coffee)
                     # set coffee attributes from stock (moisture, density, screen size):
                     try:
-                        coffees:Optional[List[Tuple[str, Tuple[plus.stock.Coffee, plus.stock.StockItem]]]] = plus.stock.getCoffees(weight_unit_idx, item.store)
-                        idx:Optional[int] = plus.stock.getCoffeeStockPosition(item.coffee, item.store, coffees)
+                        coffees:Optional[List[Tuple[str, Tuple[plus_stock.Coffee, plus_stock.StockItem]]]] = plus_stock.getCoffees(weight_unit_idx, item.store)
+                        idx:Optional[int] = plus_stock.getCoffeeStockPosition(item.coffee, item.store, coffees)
                         if coffees is not None and idx is not None:
-                            cd = plus.stock.getCoffeeCoffeeDict(coffees[idx])
+                            cd = plus_stock.getCoffeeCoffeeDict(coffees[idx])
                             if 'moisture' in cd and cd['moisture'] is not None:
                                 self.aw.qmc.moisture_greens = cd['moisture']
                             else:
@@ -2144,18 +2144,18 @@ class ScheduleWindow(ArtisanResizeablDialog): # pyright:ignore[reportGeneralType
                     except Exception as e:  # pylint: disable=broad-except
                         _log.error(e)
             elif item.blend is not None:
-                blends:List[plus.stock.BlendStructure] = plus.stock.getBlends(weight_unit_idx, item.store)
+                blends:List[plus_stock.BlendStructure] = plus_stock.getBlends(weight_unit_idx, item.store)
                 # NOTE: a blend might not have an hr_id as is the case for all custom blends
-                blend_structure:Optional[plus.stock.BlendStructure] = next((bs for bs in blends if plus.stock.getBlendId(bs) == item.blend), None)
+                blend_structure:Optional[plus_stock.BlendStructure] = next((bs for bs in blends if plus_stock.getBlendId(bs) == item.blend), None)
                 if blend_structure is not None:
-                    blend:plus.stock.Blend = plus.stock.getBlendBlendDict(blend_structure, schedule_item_weight)
+                    blend:plus_stock.Blend = plus_stock.getBlendBlendDict(blend_structure, schedule_item_weight)
                     self.aw.qmc.plus_blend_label = blend['label']
-                    self.aw.qmc.plus_blend_spec = cast(plus.stock.Blend, dict(blend)) # make a copy of the blend dict
+                    self.aw.qmc.plus_blend_spec = cast(plus_stock.Blend, dict(blend)) # make a copy of the blend dict
                     self.aw.qmc.plus_blend_spec_labels = [i.get('label','') for i in self.aw.qmc.plus_blend_spec['ingredients']]
                     # remove labels from ingredients
                     ingredients = []
                     for i in self.aw.qmc.plus_blend_spec['ingredients']:
-                        entry:plus.stock.BlendIngredient = {'ratio': i['ratio'], 'coffee': i['coffee']}
+                        entry:plus_stock.BlendIngredient = {'ratio': i['ratio'], 'coffee': i['coffee']}
                         if 'ratio_num' in i and i['ratio_num'] is not None:
                             entry['ratio_num'] = i['ratio_num']
                         if 'ratio_denom' in i and i['ratio_denom'] is not None:
@@ -2163,7 +2163,7 @@ class ScheduleWindow(ArtisanResizeablDialog): # pyright:ignore[reportGeneralType
                         ingredients.append(entry)
                     self.aw.qmc.plus_blend_spec['ingredients'] = ingredients
                     # set beans description
-                    blend_lines = plus.stock.blend2beans(blend_structure, weight_unit_idx, self.aw.qmc.weight[0])
+                    blend_lines = plus_stock.blend2beans(blend_structure, weight_unit_idx, self.aw.qmc.weight[0])
                     self.aw.qmc.beans = '\n'.join(blend_lines)
                     # set blend attributes from stock (moisture, density, screen size):
                     if 'moisture' in blend and blend['moisture'] is not None:
@@ -2373,8 +2373,8 @@ class ScheduleWindow(ArtisanResizeablDialog): # pyright:ignore[reportGeneralType
     @staticmethod
     def updateAppBadge(aw:'ApplicationWindow') -> None:
         try:
-            plus.stock.init()
-            schedule:List[plus.stock.ScheduledItem] = plus.stock.getSchedule()
+            plus_stock.init()
+            schedule:List[plus_stock.ScheduledItem] = plus_stock.getSchedule()
             scheduled_items:List[ScheduledItem] = []
             for item in schedule:
                 try:
@@ -2390,7 +2390,7 @@ class ScheduleWindow(ArtisanResizeablDialog): # pyright:ignore[reportGeneralType
 
     @pyqtSlot()
     def updateFilters(self) -> None:
-        nickname:Optional[str] = plus.connection.getNickname()
+        nickname:Optional[str] = plus_connection.getNickname()
         if nickname is not None and nickname != '':
             self.user_filter.setText(nickname)
             self.user_filter.show()
@@ -2603,7 +2603,7 @@ class ScheduleWindow(ArtisanResizeablDialog): # pyright:ignore[reportGeneralType
             # we try to load the clicked completed items profile if not yet loaded
             sender_roastUUID = sender.data.roastUUID.hex
             if sender_roastUUID != self.aw.qmc.roastUUID:
-                item_path = plus.register.getPath(sender_roastUUID)
+                item_path = plus_register.getPath(sender_roastUUID)
                 if item_path is not None and os.path.isfile(item_path):
                     try:
 #                        self.aw.loadFile(item_path)
@@ -2617,7 +2617,7 @@ class ScheduleWindow(ArtisanResizeablDialog): # pyright:ignore[reportGeneralType
         sender = self.sender()
         if sender is not None and isinstance(sender, NoDragItem):
             splitter_sizes = self.completed_splitter.sizes()
-            if plus.controller.is_on():
+            if plus_controller.is_on():
                 # editing is only possible if artisan.plus is connected or at least ON
                 # save previous edits and clear previous selection
                 if self.selected_completed_item is not None:
@@ -2630,9 +2630,9 @@ class ScheduleWindow(ArtisanResizeablDialog): # pyright:ignore[reportGeneralType
                         changes['roast_id'] = self.selected_completed_item.data.roastUUID.hex
                         changes['modified_at'] = epoch2ISO8601(time.time())
                         try:
-                            plus.controller.connect(clear_on_failure=False, interactive=False)
+                            plus_controller.connect(clear_on_failure=False, interactive=False)
 #                            _log.info("PRINT change record: %s", changes)
-                            r = plus.connection.sendData(plus.config.roast_url, changes, 'POST')
+                            r = plus_connection.sendData(plus_config.roast_url, changes, 'POST')
                             r.raise_for_status()
                             # update successfully transmitted, we now also add/update the CompletedItem linked to self.selected_completed_item
                             self.selected_completed_item.data.update_completed_item(self.aw, changes)
@@ -2656,11 +2656,11 @@ class ScheduleWindow(ArtisanResizeablDialog): # pyright:ignore[reportGeneralType
                     # update next weight item, as the current one might have been completed by closing this edit
                     self.set_next()
                 if sender != self.selected_completed_item:
-                    if plus.sync.getSync(sender.data.roastUUID.hex) is None:
+                    if plus_sync.getSync(sender.data.roastUUID.hex) is None:
                         _log.info('completed roast %s could not be edited as corresponding sync record is missing', sender.data.roastUUID.hex)
                     else:
                         # fetch data if roast is participating in the sync record game
-                        profile_data: Optional[Dict[str, Any]] = plus.sync.fetchServerUpdate(sender.data.roastUUID.hex, return_data = True)
+                        profile_data: Optional[Dict[str, Any]] = plus_sync.fetchServerUpdate(sender.data.roastUUID.hex, return_data = True)
                         if profile_data is not None:
                             # update completed items data from received profile_data
                             updated:bool = sender.data.update_completed_item(self.aw, profile_data)
@@ -2668,7 +2668,7 @@ class ScheduleWindow(ArtisanResizeablDialog): # pyright:ignore[reportGeneralType
                             if (updated and self.aw.curFile is not None and sender.data.roastUUID.hex == self.aw.qmc.roastUUID and
                                     self.aw.qmc.plus_file_last_modified is not None and 'modified_at' in profile_data and
                                     ISO86012epoch(profile_data['modified_at']) > self.aw.qmc.plus_file_last_modified):
-                                plus.sync.applyServerUpdates(profile_data)
+                                plus_sync.applyServerUpdates(profile_data)
                                 # we update the loaded profile timestamp to avoid receiving the same update again
                                 self.aw.qmc.plus_file_last_modified = time.time()
                             # start item editing mode
@@ -2751,7 +2751,7 @@ class ScheduleWindow(ArtisanResizeablDialog): # pyright:ignore[reportGeneralType
                 # we try to load the clicked completed items profile if not yet loaded
                 sender_roastUUID = sender.data.roastUUID.hex
                 if sender_roastUUID != self.aw.qmc.roastUUID:
-                    item_path = plus.register.getPath(sender_roastUUID)
+                    item_path = plus_register.getPath(sender_roastUUID)
                     if item_path is not None and os.path.isfile(item_path):
                         try:
                             self.aw.loadFile(item_path)
@@ -2840,11 +2840,11 @@ class ScheduleWindow(ArtisanResizeablDialog): # pyright:ignore[reportGeneralType
 
     # converts given BlendList into a Blend and returns True if equal modulo label to the given Blend
     @staticmethod
-    def same_blend(blend_list1:Optional[plus.stock.BlendList], blend2:Optional[plus.stock.Blend]) -> bool:
+    def same_blend(blend_list1:Optional[plus_stock.BlendList], blend2:Optional[plus_stock.Blend]) -> bool:
         if blend_list1 is not None and blend2 is not None:
-            blend1 = plus.stock.list2blend(blend_list1)
+            blend1 = plus_stock.list2blend(blend_list1)
             if blend1 is not None:
-                return plus.stock.matchBlendDict(blend1, blend2, sameLabel=False)
+                return plus_stock.matchBlendDict(blend1, blend2, sameLabel=False)
         return False
 
     # returns the roasted weight estimate in kg calculated from the given ScheduledItem and the current roasts batchsize (in kg)
@@ -3007,7 +3007,7 @@ class ScheduleWindow(ArtisanResizeablDialog): # pyright:ignore[reportGeneralType
 
             # show empty message if there are no scheduled items or the schedule items scrolling widget if there are
             if self.scheduled_items == []:
-                self.remaining_message.setText(QApplication.translate('Plus', 'Schedule empty!{}Plan your schedule on {}').format('<BR><BR>', f'<a href="{schedulerLink()}">{plus.config.app_name}</a><br>'))
+                self.remaining_message.setText(QApplication.translate('Plus', 'Schedule empty!{}Plan your schedule on {}').format('<BR><BR>', f'<a href="{schedulerLink()}">{plus_config.app_name}</a><br>'))
                 self.stacked_remaining_widget.setCurrentWidget(self.remaining_message_widget)
                 self.setAppBadge(0)
             else:

@@ -335,12 +335,12 @@ class Artisan(QtSingleApplication):
                     try:
                         if (libtime.time() - self.sentToBackground > self.plus_sync_cache_expiration and
                               aw.plus_account is not None and aw.qmc.roastUUID is not None and aw.curFile is not None):
-                            plus.sync.getUpdate(aw.qmc.roastUUID, aw.curFile) # sync the loaded profile data if any
+                            plus_sync.getUpdate(aw.qmc.roastUUID, aw.curFile) # sync the loaded profile data if any
 
                         if aw.schedule_window is not None and aw.plus_account is not None:
                             # only if scheduler is active and plus connected we update the stock on app raise which triggers a scheduler redraw implicitly
                             # NOTE the scheduler redraw is also happening if stock was not updated due to the update request time limit
-                            plus.stock.update() # stock update (frequency limited by plus/config.py:stock_cache_expiration)
+                            plus_stock.update() # stock update (frequency limited by plus/config.py:stock_cache_expiration)
 
                     except Exception as e: # pylint: disable=broad-except
                         _log.exception(e)
@@ -367,7 +367,7 @@ class Artisan(QtSingleApplication):
 #                    try:
 #                        if aw.plus_account is not None and aw.qmc.roastUUID is not None and aw.curFile is not None and \
 #                                libtime.time() - self.sentToBackground > self.plus_sync_cache_expiration:
-#                            plus.sync.getUpdate(aw.qmc.roastUUID,aw.curFile)
+#                            plus_sync.getUpdate(aw.qmc.roastUUID,aw.curFile)
 #                    except Exception as e: # pylint: disable=broad-except
 #                        _log.exception(e)
 #                    aw.updateScheduleSignal.emit()
@@ -397,7 +397,7 @@ class Artisan(QtSingleApplication):
                 roast_UUID = url.toString(QUrl.UrlFormattingOption.RemoveScheme | QUrl.UrlFormattingOption.RemoveAuthority | QUrl.UrlFormattingOption.RemoveQuery | QUrl.UrlFormattingOption.RemoveFragment | QUrl.UrlFormattingOption.StripTrailingSlash)[1:]
                 if aw.qmc.roastUUID is None or aw.qmc.roastUUID != roast_UUID:
                     # not yet open, lets try to find the path to that roastUUID and open it
-                    profile_path = plus.register.getPath(roast_UUID)
+                    profile_path = plus_register.getPath(roast_UUID)
                     if profile_path:
                         aw.sendmessage(QApplication.translate('Message','URL open profile: {0}').format(profile_path))
                         file_url = QUrl.fromLocalFile(profile_path)
@@ -730,17 +730,16 @@ from artisanlib.phases_canvas import tphasescanvas
 
 
 # import artisan.plus module
-import plus.config
-import plus.util
-import plus.sync
-import plus.queue
-import plus.controller
-import plus.connection
-import plus.register
-import plus.notifications
-import plus.blend
-import plus.stock
-import plus.schedule
+from .plus import config as plus_config
+from .plus import util as plus_util
+from .plus import queue as plus_queue
+from .plus import controller as plus_controller
+from .plus import connection as plus_connection
+from .plus import register as plus_register
+from .plus import notifications as plus_notifications
+from .plus import blend as plus_blend
+from .plus import stock as plus_stock
+from .plus import schedule as plus_schedule
 
 
 
@@ -1218,7 +1217,7 @@ class VMToolbar(NavigationToolbar): # pylint: disable=abstract-method
             # ALT-click (OPTION on macOS) sends the log file by email
             self.aw.sendLog()
         else:
-            plus.controller.toggle(self.aw)
+            plus_controller.toggle(self.aw)
 
     def subscription(self) -> None:
         if self.aw.plus_paidUntil is not None: # after reset and authentication, it might still take a moment until the paidUntil is set via its signal
@@ -1237,8 +1236,8 @@ class VMToolbar(NavigationToolbar): # pylint: disable=abstract-method
                     unit = 1 # 1: kg, 2: lb
                     if self.qmc.weight[2] in {'lb', 'oz'}:
                         unit = 2
-                    rlimit = plus.stock.renderAmount(self.aw.plus_rlimit, target_unit_idx=unit)
-                    used = plus.stock.renderAmount(self.aw.plus_used, target_unit_idx=unit)
+                    rlimit = plus_stock.renderAmount(self.aw.plus_rlimit, target_unit_idx=unit)
+                    used = plus_stock.renderAmount(self.aw.plus_used, target_unit_idx=unit)
                     percent_used_formatted = f'{percent_used:.0f}% {QApplication.translate("Label","roasted")} ({used} / {rlimit})'
                     # if 90% of quota is used, render usage in red
                     if percent_used >= 90:
@@ -1256,7 +1255,7 @@ class VMToolbar(NavigationToolbar): # pylint: disable=abstract-method
                     message += '<br><br>'
                 else:
                     message += reminder_message
-                message += QApplication.translate('Plus','Please visit our {0}shop{1} to extend your subscription').format('<a href="' + plus.config.shop_base_url + '">','</a>')
+                message += QApplication.translate('Plus','Please visit our {0}shop{1} to extend your subscription').format('<a href="' + plus_config.shop_base_url + '">','</a>')
                 #
                 # if less then 31 days:
                 # n days left <= red if <=3
@@ -1266,14 +1265,14 @@ class VMToolbar(NavigationToolbar): # pylint: disable=abstract-method
 #                subscription_message_box = ArtisanMessageBox(self.aw, QApplication.translate('Message', 'Subscription'), message)
                 subscription_message_box = QMessageBox() # only without super this one shows the native dialog on macOS under Qt 6.6.2
 #                subscription_message_box.setTextFormat(Qt.TextFormat.RichText)
-                plus.util.setPlusIcon(subscription_message_box)
+                plus_util.setPlusIcon(subscription_message_box)
                 if percent_used_formatted != '':
                     percent_used_formatted = '\n' + percent_used_formatted
                 subscription_message_box.setText(QApplication.translate('Plus','Do you want to extend your subscription?'))
                 subscription_message_box.setInformativeText((QApplication.translate('Plus','Your subscription ends on') if remaining_days>0 else QApplication.translate('Plus','Your subscription ended on')) + f' {QDate(pu.year,pu.month,pu.day).toString(QLocale().dateFormat(QLocale.FormatType.ShortFormat))}\n{days}{percent_used_formatted}')
                 subscription_message_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
                 res = subscription_message_box.exec()
-                plus_link = plus.config.shop_base_url
+                plus_link = plus_config.shop_base_url
                 if self.aw.plus_subscription == 'PRO':
                     plus_link += '/professional-roasters'
                 elif self.aw.plus_subscription == 'HOME':
@@ -1574,7 +1573,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
         self.segmentresultsanno:Optional[Annotation] = None
 
         # Schedule
-        self.schedule_window:Optional[plus.schedule.ScheduleWindow] = None
+        self.schedule_window:Optional[plus_schedule.ScheduleWindow] = None
         # the uuids of the scheduled items in local custom order on last closing the scheduler
         # persistet along the app settings
         self.scheduled_items_uuids:List[str] = []
@@ -4150,18 +4149,18 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
 
 
     # today is expected to be w.r.t. local timezone
-    def scheduledItemsfilter(self, today:datetime.date, item:plus.schedule.ScheduledItem) -> bool:
+    def scheduledItemsfilter(self, today:datetime.date, item:plus_schedule.ScheduledItem) -> bool:
         # if user filter is active only items not for a specific user or for the current user (if available) are listed
         # if machine filter is active only items not for a specific machine or for the current machine setup are listed in case a current machine is set
         return ((not self.schedule_day_filter or item.date == today) and
-                (not self.schedule_user_filter or not bool(plus.connection.getNickname()) or item.user is None or item.user == self.plus_user_id) and
+                (not self.schedule_user_filter or not bool(plus_connection.getNickname()) or item.user is None or item.user == self.plus_user_id) and
                 (self.qmc.roastertype_setup.strip() == '' or not self.schedule_machine_filter or item.machine is None or
                     (self.qmc.roastertype_setup.strip() != '' and item.machine is not None and
                         item.machine.strip() == self.qmc.roastertype_setup.strip())))
 
     def updateBadge(self) -> None:
         if self.schedule_window is None:
-            plus.schedule.ScheduleWindow.updateAppBadge(self)
+            plus_schedule.ScheduleWindow.updateAppBadge(self)
 
     def blockTicks(self) -> int:
         return max(1, int(round(self.sampling_seconds_to_block_quantifiction / (self.qmc.delay / 1000))) + 1)
@@ -4261,7 +4260,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
         self.updatePlusLimits(rlimit, rused)
         self.updatePlusPaidUntil(pu)
         self.updatePlusStatus()
-        plus.notifications.updateNotifications(notifications, machines)
+        plus_notifications.updateNotifications(notifications, machines)
 
 
     @pyqtSlot()
@@ -4798,12 +4797,12 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
         try:
             subscription_icon = None
             if self.plus_account is not None:
-                if plus.controller.is_connected():
+                if plus_controller.is_connected():
                     if self.editgraphdialog is False:
                         # syncing from server in progress
                         plus_icon = 'plus-dirty'
                         tooltip = QApplication.translate('Tooltip', 'Syncing with artisan.plus')
-                    elif plus.controller.is_synced():
+                    elif plus_controller.is_synced():
                         plus_icon = 'plus-connected'
                         tooltip = QApplication.translate('Tooltip', 'Disconnect artisan.plus')
                     else:
@@ -4980,7 +4979,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
             weightUnit:str, volumeIn:float, volumeUnit:str, densityWeight:float, beanSize_min:int, beanSize_max:int,
             moistureGreen:float, colorSystem:str, file:Optional[str], roastUUID:Optional[str],
             batchnr:int, batchprefix:str, plus_account:Optional[str], plus_store:Optional[str], plus_store_label:Optional[str] ,plus_coffee:Optional[str],
-            plus_coffee_label:Optional[str], plus_blend_label:Optional[str], plus_blend_spec:Optional[plus.stock.Blend], plus_blend_spec_labels:Optional[List[str]],
+            plus_coffee_label:Optional[str], plus_blend_label:Optional[str], plus_blend_spec:Optional[plus_stock.Blend], plus_blend_spec_labels:Optional[List[str]],
             weightOut:Optional[float], volumeOut:Optional[float], densityRoasted:Optional[float], moistureRoasted:Optional[float], wholeColor:Optional[int], groundColor:Optional[int]) -> 'RecentRoast':
         d:RecentRoast = {
             'title': title,
@@ -5099,16 +5098,16 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
             if self.qmc.plus_blend_spec is not None and 'hr_id' in self.qmc.plus_blend_spec and self.qmc.plus_store is not None:
                 try:
                     weight_unit_idx = weight_units.index(rr['weightUnit'])
-                    blends = plus.stock.getBlends(weight_unit_idx,self.qmc.plus_store)
+                    blends = plus_stock.getBlends(weight_unit_idx,self.qmc.plus_store)
                     blend = next(b for b in blends if \
-                        plus.stock.getBlendId(b) == self.qmc.plus_blend_spec['hr_id'] and
-                        plus.stock.getBlendStockDict(b)['location_hr_id'] == self.qmc.plus_store)
+                        plus_stock.getBlendId(b) == self.qmc.plus_blend_spec['hr_id'] and
+                        plus_stock.getBlendStockDict(b)['location_hr_id'] == self.qmc.plus_store)
                     w = convertWeight(self.qmc.weight[0],weight_unit_idx,weight_units.index('Kg')) # w is weightIn converted to kg
-                    bd:plus.stock.Blend = plus.stock.getBlendBlendDict(blend,w)
+                    bd:plus_stock.Blend = plus_stock.getBlendBlendDict(blend,w)
                     self.qmc.plus_blend_label = bd['label']
                     if self.qmc.plus_blend_spec is not None:
                         self.qmc.plus_blend_spec_labels = [i.get('label', '') for i in self.qmc.plus_blend_spec['ingredients']]
-                        self.qmc.beans = '\n'.join(plus.stock.blend2beans(blend,weight_unit_idx,self.qmc.weight[0]))
+                        self.qmc.beans = '\n'.join(plus_stock.blend2beans(blend,weight_unit_idx,self.qmc.weight[0]))
                         if 'moisture' in bd and bd['moisture'] is not None:
                             self.qmc.moisture_greens = bd['moisture']
                         else:
@@ -12008,7 +12007,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
                 if res:
                     #write
                     pf = self.getProfile()
-                    sync_record_hash = plus.controller.updateSyncRecordHashAndSync()
+                    sync_record_hash = plus_controller.updateSyncRecordHashAndSync()
                     if sync_record_hash is not None:
                         # we add the hash over the sync record to be able to detect offline changes
                         hash_encoded = encodeLocal(sync_record_hash)
@@ -12496,10 +12495,10 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
                 _log.info('profile loaded: %s', filename)
 
                 # update plus data set modification date
-                self.qmc.plus_file_last_modified = plus.util.getModificationDate(filename)
+                self.qmc.plus_file_last_modified = plus_util.getModificationDate(filename)
                 self.updatePlusStatus()
-                if self.plus_account is not None and plus.config.uuid_tag in obj:
-                    QTimer.singleShot(100, plus.sync.sync)
+                if self.plus_account is not None and plus_config.uuid_tag in obj:
+                    QTimer.singleShot(100, plus_sync.sync)
 
                 #check colors
                 self.checkColors(self.getcolorPairsToCheck())
@@ -12790,7 +12789,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
             except Exception: # pylint: disable=broad-except
                 return False
         elif UUID is not None and (force_reload or self.qmc.backgroundUUID != UUID):
-            filepath = plus.register.getPath(UUID)
+            filepath = plus_register.getPath(UUID)
             if filepath is not None:
                 try:
                     self.loadbackground(filepath)
@@ -14144,8 +14143,8 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
 #PLUS
         # fill plus UUID register
         try:
-            if obj is not None and plus.config.uuid_tag in obj:
-                plus.register.addPath(obj[plus.config.uuid_tag],fn)
+            if obj is not None and plus_config.uuid_tag in obj:
+                plus_register.addPath(obj[plus_config.uuid_tag],fn)
         except Exception: # pylint: disable=broad-except
             pass
 
@@ -14161,8 +14160,8 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
 #PLUS
             # fill plus UUID register
             try:
-                if plus.config.uuid_tag in obj:
-                    plus.register.addPath(obj[plus.config.uuid_tag],fn)
+                if plus_config.uuid_tag in obj:
+                    plus_register.addPath(obj[plus_config.uuid_tag],fn)
             except Exception: # pylint: disable=broad-except
                 pass
 
@@ -14788,7 +14787,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
                 self.qmc.plus_coffee_label = None
             if 'plus_blend_spec' in profile:
                 # we convert the blend specification from its list to its internal dictionary representation
-                self.qmc.plus_blend_spec = plus.stock.list2blend(profile['plus_blend_spec'])
+                self.qmc.plus_blend_spec = plus_stock.list2blend(profile['plus_blend_spec'])
                 if 'plus_blend_label' in profile:
                     self.qmc.plus_blend_label = decodeLocalStrict(profile['plus_blend_label'])
                 else:
@@ -15198,7 +15197,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
                         self.deleteBackground() # delete a loaded background if any
                 elif 'backgroundUUID' in profile and self.qmc.backgroundUUID != profile['backgroundUUID']:
                     # background file path moved, we try to resolve via the UUID cache
-                    background_path = plus.register.getPath(profile['backgroundUUID'])
+                    background_path = plus_register.getPath(profile['backgroundUUID'])
                     if background_path is not None and os.path.isfile(background_path):
                         try:
                             self.loadbackground(background_path)
@@ -15780,7 +15779,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
                     profile['plus_coffee_label'] = encodeLocalStrict(self.qmc.plus_coffee_label)
             if self.qmc.plus_blend_spec is not None:
                 # we convert the internal blend dictionary specification to the external list specification
-                blend_spec = plus.stock.blend2list(self.qmc.plus_blend_spec)
+                blend_spec = plus_stock.blend2list(self.qmc.plus_blend_spec)
                 if blend_spec is not None:
                     profile['plus_blend_spec'] = blend_spec
                 profile['plus_blend_label'] = encodeLocalStrict(self.qmc.plus_blend_label)
@@ -16044,7 +16043,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
                         import uuid
                         pf['roastUUID'] = uuid.uuid4().hex # generate UUID
 
-                    sync_record_hash = plus.controller.updateSyncRecordHashAndSync()
+                    sync_record_hash = plus_controller.updateSyncRecordHashAndSync()
                     if sync_record_hash is not None:
                         # we add the hash over the sync record to be able to detect offline changes
                         srh = encodeLocal(sync_record_hash)
@@ -16061,7 +16060,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
                         self.qmc.fileCleanSignal.emit()
 
                     # update plus data set modification date
-                    self.qmc.plus_file_last_modified = plus.util.getModificationDate(filename)
+                    self.qmc.plus_file_last_modified = plus_util.getModificationDate(filename)
 
                     if self.qmc.autosaveimage:
                         #
@@ -17520,14 +17519,14 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
             self.qmc.beansize_max = toInt(settings.value('beansize_max',self.qmc.beansize_max))
             self.qmc.plus_default_store = settings.value('plus_default_store',self.qmc.plus_default_store)
             if filename is None and settings.contains('plus_custom_blend_name'):
-                # we don't import plus custom blend data from external settings file as the custom blend is considered temporary
+                # we don't import .plus custom blend data from external settings file as the custom blend is considered temporary
                 plus_custom_blend_name = toString(settings.value('plus_custom_blend_name',''))
                 plus_custom_blend_coffees = [toString(x) for x in toList(settings.value('plus_custom_blend_coffees', []))]
                 plus_custom_blend_ratios = [toFloat(x) for x in toList(settings.value('plus_custom_blend_ratios', []))]
                 if plus_custom_blend_name != '' and len(plus_custom_blend_coffees)>1 and len(plus_custom_blend_ratios) == len(plus_custom_blend_coffees):
                     try:
-                        plus_custom_blend_components = [plus.blend.Component(c,r) for (c,r) in zip(plus_custom_blend_coffees, plus_custom_blend_ratios)]
-                        self.qmc.plus_custom_blend = plus.blend.CustomBlend(
+                        plus_custom_blend_components = [plus_blend.Component(c,r) for (c,r) in zip(plus_custom_blend_coffees, plus_custom_blend_ratios)]
+                        self.qmc.plus_custom_blend = plus_blend.CustomBlend(
                             plus_custom_blend_name,
                             plus_custom_blend_components)
                     except Exception as e: # pylint: disable=broad-except
@@ -18047,7 +18046,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
 
             if filename is None and self.plus_account is not None:
                 try:
-                    plus.controller.start(self)
+                    plus_controller.start(self)
                 except Exception as e: # pylint: disable=broad-except
                     _log.exception(e)
 
@@ -19813,13 +19812,13 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
         try:
             if 'roastUUID' in data and data['roastUUID'] is not None and data['roastUUID'] != '':
                 roast_uuid = data['roastUUID']
-#                if plus.register.getPath(roast_uuid):
+#                if plus_register.getPath(roast_uuid):
 #                    title_html = f'<a href="artisan://roast/{roast_uuid}">{title_html}</a>'
                 title_html = f'<a href="artisan://roast/{roast_uuid}">{title_html}</a>'
-                if bool(plus.sync.getSync(roast_uuid)):
-                    time_html = f'<a href="{plus.util.roastLink(roast_uuid)}" target="_blank">{time_html}</a>'
+                if bool(plus_sync.getSync(roast_uuid)):
+                    time_html = f'<a href="{plus_util.roastLink(roast_uuid)}" target="_blank">{time_html}</a>'
                 if 'plus_coffee' in data and data['plus_coffee'] is not None and data['plus_coffee'] != '':
-                    beans_html = f'<a href="{plus.util.coffeeLink(data["plus_coffee"])}" target="_blank">{beans_html}</a>'
+                    beans_html = f'<a href="{plus_util.coffeeLink(data["plus_coffee"])}" target="_blank">{beans_html}</a>'
         except Exception: # pylint: disable=broad-except
             pass
         return libstring.Template(HTML_REPORT_TEMPLATE).safe_substitute(
@@ -20690,11 +20689,11 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
         try:
             if 'roastUUID' in production_data and production_data['roastUUID'] is not None:
                 roast_uuid = production_data['roastUUID']
-#                if plus.register.getPath(roast_uuid):
+#                if plus_register.getPath(roast_uuid):
 #                    title_html = '<a href="artisan://roast/{0}">{1}</a>'.format(roast_uuid,title_html)
                 title_html = f'<a href="artisan://roast/{roast_uuid}">{title_html}</a>'
-                if bool(plus.sync.getSync(roast_uuid)):
-                    time_html = f'<a href="{plus.util.roastLink(roast_uuid)}" target="_blank">{time_html}</a>'
+                if bool(plus_sync.getSync(roast_uuid)):
+                    time_html = f'<a href="{plus_util.roastLink(roast_uuid)}" target="_blank">{time_html}</a>'
         except Exception as e: # pylint: disable=broad-except
             _log.exception(e)
         weight_fmt = ('{0:.2f}' if self.qmc.weight[2] in {'Kg', 'lb', 'oz'} else '{0:.0f}')
@@ -21898,17 +21897,17 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
             # add artisan or artisan.plus links to title, background and beans if possible
             title_html = str(htmllib.escape(batch)) + str(htmllib.escape(self.qmc.title))
             if self.qmc.roastUUID is not None and self.qmc.roastUUID != '':
-#                if plus.register.getPath(self.qmc.roastUUID):
+#                if plus_register.getPath(self.qmc.roastUUID):
 #                    title_html = '<a href="artisan://roast/' + self.qmc.roastUUID + '">' + title_html + "</a>"
                 title_html = '<a href="artisan://roast/' + self.qmc.roastUUID + '">' + title_html + '</a>'
-                if bool(plus.sync.getSync(self.qmc.roastUUID)):
-                    datetime_html = f'<a href="{plus.util.roastLink(self.qmc.roastUUID)}" target="_blank">{datetime_html}</a>'
-#            if self.qmc.background and self.qmc.titleB is not None and self.qmc.titleB != "" and self.qmc.backgroundUUID is not None and plus.register.getPath(self.qmc.backgroundUUID):
+                if bool(plus_sync.getSync(self.qmc.roastUUID)):
+                    datetime_html = f'<a href="{plus_util.roastLink(self.qmc.roastUUID)}" target="_blank">{datetime_html}</a>'
+#            if self.qmc.background and self.qmc.titleB is not None and self.qmc.titleB != "" and self.qmc.backgroundUUID is not None and plus_register.getPath(self.qmc.backgroundUUID):
 #                background_html = '<a href="artisan://roast/' + self.qmc.backgroundUUID + '">' + background_html + "</a>"
             if self.qmc.background and self.qmc.titleB is not None and self.qmc.titleB != '' and self.qmc.backgroundUUID is not None:
                 background_html = '<a href="artisan://roast/' + self.qmc.backgroundUUID + '">' + background_html + '</a>'
             if beans_html is not None and beans_html != '' and self.qmc.plus_coffee is not None:
-                beans_html = f'<a href="{plus.util.coffeeLink(self.qmc.plus_coffee)}" target="_blank">{beans_html}</a>'
+                beans_html = f'<a href="{plus_util.coffeeLink(self.qmc.plus_coffee)}" target="_blank">{beans_html}</a>'
                 # note that blends are hard to link back as it requires to link component by component
             cupping_score, cupping_all_default = self.cuppingSum(self.qmc.flavors)
             cupping_notes = self.note2html(self.qmc.cuppingnotes).strip()
@@ -23408,7 +23407,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
     def schedule(self, _:bool = False) -> None:
         if self.schedule_window is None:
             if  not self.app.artisanviewerMode:  # no scheduler in ArtisanViewer mode
-                self.schedule_window = plus.schedule.ScheduleWindow(self, self, self.schedule_activeTab)
+                self.schedule_window = plus_schedule.ScheduleWindow(self, self, self.schedule_activeTab)
                 if self.schedule_window is not None:
                     self.scheduleFlag = True
                     self.scheduleAction.setChecked(True)

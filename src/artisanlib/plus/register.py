@@ -30,7 +30,7 @@ except Exception: # pylint: disable=broad-except
 
 from pathlib import Path
 from artisanlib.util import getDirectory
-from plus import config
+from . import config
 import os
 import logging
 

@@ -35,7 +35,7 @@ except Exception: # pylint: disable=broad-except
 
 from artisanlib.util import decodeLocal, getResourcePath, float2float
 from pathlib import Path
-from plus import config
+from . import config
 import datetime
 import dateutil.parser
 import logging

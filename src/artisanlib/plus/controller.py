@@ -39,7 +39,7 @@ from typing import Final, Optional, TYPE_CHECKING
 if TYPE_CHECKING:
     from artisanlib.main import ApplicationWindow # noqa: F401 # pylint: disable=unused-import
 
-from plus import config, connection, stock, queue, sync, roast, util
+from . import config, connection, stock, queue, sync, roast, util
 
 
 _log: Final[logging.Logger] = logging.getLogger(__name__)

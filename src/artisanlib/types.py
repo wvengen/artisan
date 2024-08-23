@@ -27,7 +27,7 @@ from typing import TypedDict, Optional,  Tuple, List, Union, TYPE_CHECKING
 from typing_extensions import Required # Python <3.11
 
 if TYPE_CHECKING:
-    from plus.stock import BlendList, Blend
+    from .plus.stock import BlendList, Blend
 
 class ComputedProfileInformation(TypedDict, total=False):
     CHARGE_ET: float

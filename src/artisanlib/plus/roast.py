@@ -22,7 +22,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from artisanlib.util import weight_units, convertWeight
-from plus import config, util, stock
+from . import config, util, stock
 import hashlib
 import logging
 

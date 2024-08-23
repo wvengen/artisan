@@ -34,7 +34,7 @@ import json
 import logging
 
 from artisanlib.notifications import ntype2NotificationType
-from plus import config, controller, connection, util
+from . import config, controller, connection, util
 
 _log: Final[logging.Logger] = logging.getLogger(__name__)
 

@@ -38,7 +38,7 @@ import logging
 
 from artisanlib.util import (decodeLocal, encodeLocal, getDirectory, is_int_list, is_float_list, render_weight,
     weight_units, float2float, convertWeight)
-from plus import config, connection, controller, util
+from . import config, connection, controller, util
 from typing import Final, TypedDict, List, Union, Optional, Tuple, Dict, TextIO
 from typing_extensions import NotRequired # Python <=3.10
 

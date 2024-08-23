@@ -68,14 +68,14 @@ SOURCES = \
     artisanlib/help/s7_help.py \
     artisanlib/help/symbolic_help.py \
     artisanlib/help/transposer_help.py \
-    plus/blend.py \
-    plus/controller.py \
-    plus/countries.py \
-    plus/login.py \
-    plus/queue.py \
-    plus/schedule.py \
-    plus/stock.py \
-    plus/sync.py
+    artisanlib/plus/blend.py \
+    artisanlib/plus/controller.py \
+    artisanlib/plus/countries.py \
+    artisanlib/plus/login.py \
+    artisanlib/plus/queue.py \
+    artisanlib/plus/schedule.py \
+    artisanlib/plus/stock.py \
+    artisanlib/plus/sync.py
 
 # the list of translation has to be synced with the script pylupdate6pro (for pylupdate6)
 TRANSLATIONS = \

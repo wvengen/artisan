@@ -55,7 +55,7 @@ except Exception: # pylint: disable=broad-except
 
 import logging
 from artisanlib.dialogs import ArtisanDialog
-from plus import config
+from . import config
 from typing import Final, Optional, Tuple, TYPE_CHECKING
 
 if TYPE_CHECKING:

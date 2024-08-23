@@ -32,7 +32,7 @@ except Exception: # pylint: disable=broad-except
     from PyQt5.QtWidgets import QApplication # type: ignore # @UnusedImport @Reimport  @UnresolvedImport
 
 from artisanlib.util import getDirectory
-from plus import config, util, roast, connection, sync, controller
+from . import config, util, roast, connection, sync, controller
 import threading
 import time
 import datetime
