@@ -87,7 +87,7 @@ load-plugins = [
 #    'pylint.extensions.mccabe', # complexity rating for functions; NOT YET
     'pylint.extensions.no_self_use'
 ]
-ignore-paths = [ "^uic/.*$",
+ignore-paths = [ "^artisanlib/uic/.*$",
                  "^build/.*$",
                  "^dist/.*$",
                  "^artisanlib/proto/.*$",
@@ -254,7 +254,7 @@ enable='''c-extension-no-member,'''
 
 [tool.mypy]
 files = ["artisanlib/*.py", "plus/*.py"]
-exclude = ['build', 'dist', 'uic', 'misc']
+exclude = ['build', 'dist', 'artisanlib/uic', 'misc']
 python_version = "3.9"
 # "3.8" throws "matplotlib/backends/backend_agg.py:393: error: Parenthesized context managers are only supported in Python 3.9 and greater"
 
@@ -294,7 +294,7 @@ ignore_missing_imports = true
 
 
 [[tool.mypy.overrides]]
-module = "uic.*"
+module = "artisanlib/uic.*"
 follow_imports = 'skip'
 
 
@@ -324,7 +324,7 @@ exclude = ["dist", "build", "artisanlib/proto", ".pytype", ".mypy_cache", ".git"
 target-version = "py38"
 
 [tool.ruff.lint.per-file-ignores]
-"uic/*.py" = ["UP004", "F401", "ARG002"]
+"artisanlib/uic/*.py" = ["UP004", "F401", "ARG002"]
 
 
 

@@ -47,9 +47,9 @@ from artisanlib.dialogs import ArtisanDialog, ArtisanResizeablDialog
 from artisanlib.widgets import MyQComboBox, ClickableQLabel, ClickableTextEdit, MyTableWidgetItemNumber
 
 
-from uic import EnergyWidget # pyright: ignore[attr-defined] # pylint: disable=no-name-in-module
-from uic import SetupWidget # pyright: ignore[attr-defined] # pylint: disable=no-name-in-module
-from uic import MeasureDialog # pyright: ignore[attr-defined] # pylint: disable=no-name-in-module
+from .uic import EnergyWidget # pyright: ignore[attr-defined] # pylint: disable=no-name-in-module
+from .uic import SetupWidget # pyright: ignore[attr-defined] # pylint: disable=no-name-in-module
+from .uic import MeasureDialog # pyright: ignore[attr-defined] # pylint: disable=no-name-in-module
 
 _log: Final[logging.Logger] = logging.getLogger(__name__)
 
