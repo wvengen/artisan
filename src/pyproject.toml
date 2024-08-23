@@ -90,7 +90,7 @@ load-plugins = [
 ignore-paths = [ "^uic/.*$",
                  "^build/.*$",
                  "^dist/.*$",
-                 "^proto/.*$",
+                 "^artisanlib/proto/.*$",
                  "^test/.*$" ]
 
 # Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the
@@ -318,7 +318,7 @@ line-length = 80
 lint.ignore = ["E402", "E501", "E741", "PLR0913", "PLR2004", "COM812", "PLR0912", "PLR0915", "PLW0603", "PLR0911", "SIM105", "SIM114", "PLR2044"]
 
 # Exclude a variety of commonly ignored directories.
-exclude = ["dist", "build", "proto", ".pytype", ".mypy_cache", ".git"]
+exclude = ["dist", "build", "artisanlib/proto", ".pytype", ".mypy_cache", ".git"]
 
 # Assume Python 3.8.
 target-version = "py38"
@@ -332,7 +332,7 @@ target-version = "py38"
 
 [tool.pyright]
 include = ["artisanlib", "plus" ]
-exclude = ["proto"]
+exclude = ["artisanlib/proto"]
 # ignore = ["src/oldstuff"]
 
 reportMissingImports = true

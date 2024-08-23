@@ -27,7 +27,7 @@ try:
 except ImportError:
     # BLE not available on older Windows/PyQt5 platforms
     pass
-from proto import IkawaCmd_pb2 # type:ignore[unused-ignore]
+from .proto import IkawaCmd_pb2 # type:ignore[unused-ignore]
 
 
 _log: Final[logging.Logger] = logging.getLogger(__name__)
