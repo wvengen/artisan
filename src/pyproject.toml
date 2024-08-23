@@ -1,6 +1,6 @@
 [project]
 name = 'Artisan'
-dynamic = ['version']
+dynamic = ['version', 'dependencies', 'optional-dependencies']
 description = "Artisan is a software that helps coffee roasters record, analyze, and control roast profiles."
 readme = {file = 'README.txt', content-type='text/markdown'}
 authors = [
@@ -38,6 +38,20 @@ classifiers = [
 'Repository' = 'https://github.com/artisan-roaster-scope/artisan'
 'Issue Tracker' = 'https://github.com/artisan-roaster-scope/artisan/issues'
 'Changelog' = 'https://github.com/artisan-roaster-scope/artisan/blob/master/wiki/ReleaseHistory.md'
+
+## setuptools
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.dynamic]
+version = {attr = 'artisanlib.__version__'}
+dependencies = {file = 'requirements.txt'}
+optional-dependencies = {dev = {file = 'requirements-dev.txt'}}
+
+[tool.setuptools.packages.find]
+include = ['artisanlib*']
 
 
 ## black
