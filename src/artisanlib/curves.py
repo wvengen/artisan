@@ -33,7 +33,7 @@ from artisanlib.util import (deltaLabelBigPrefix, deltaLabelPrefix, deltaLabelUT
                              stringtoseconds, stringfromseconds, toFloat, float2float)
 from artisanlib.dialogs import ArtisanDialog
 from artisanlib.widgets import MyQDoubleSpinBox
-from help import symbolic_help # pyright:ignore [attr-defined] # pylint: disable=no-name-in-module
+from .help import symbolic_help # pyright:ignore [attr-defined] # pylint: disable=no-name-in-module
 
 try:
     from PyQt6.QtCore import (Qt, pyqtSlot, QSettings, QRegularExpression, QTimer) # @UnusedImport @Reimport  @UnresolvedImport

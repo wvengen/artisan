@@ -56,18 +56,18 @@ SOURCES = \
     artisanlib/transposer.py \
     artisanlib/wheels.py \
     artisanlib/wsport.py \
-    help/alarms_help.py \
-    help/autosave_help.py \
-    help/energy_help.py \
-    help/eventannotations_help.py \
-    help/eventbuttons_help.py \
-    help/eventsliders_help.py \
-    help/keyboardshortcuts_help.py \
-    help/modbus_help.py \
-    help/programs_help.py \
-    help/s7_help.py \
-    help/symbolic_help.py \
-    help/transposer_help.py \
+    artisanlib/help/alarms_help.py \
+    artisanlib/help/autosave_help.py \
+    artisanlib/help/energy_help.py \
+    artisanlib/help/eventannotations_help.py \
+    artisanlib/help/eventbuttons_help.py \
+    artisanlib/help/eventsliders_help.py \
+    artisanlib/help/keyboardshortcuts_help.py \
+    artisanlib/help/modbus_help.py \
+    artisanlib/help/programs_help.py \
+    artisanlib/help/s7_help.py \
+    artisanlib/help/symbolic_help.py \
+    artisanlib/help/transposer_help.py \
     plus/blend.py \
     plus/controller.py \
     plus/countries.py \

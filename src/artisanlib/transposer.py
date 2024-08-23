@@ -616,7 +616,7 @@ class profileTransformatorDlg(ArtisanDialog):
 
     @pyqtSlot(bool)
     def openHelp(self,_:bool = False) -> None:
-        from help import transposer_help # pyright: ignore [attr-defined] # pylint: disable=no-name-in-module
+        from .help import transposer_help # pyright: ignore [attr-defined] # pylint: disable=no-name-in-module
         self.helpdialog = self.aw.showHelpDialog(
                 self,            # this dialog as parent
                 self.helpdialog, # the existing help dialog

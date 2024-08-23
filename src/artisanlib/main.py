@@ -12064,7 +12064,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
     @pyqtSlot()
     @pyqtSlot(bool)
     def viewKshortcuts(self, _:bool = False) -> None:
-        from help import keyboardshortcuts_help # pylint: disable=no-name-in-module
+        from .help import keyboardshortcuts_help # pylint: disable=no-name-in-module
         self.helpdialog = self.showHelpDialog(
                 self,            # this dialog as parent
                 self.helpdialog, # the existing help dialog

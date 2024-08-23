@@ -3467,7 +3467,7 @@ class EventsDlg(ArtisanResizeablDialog):
 
     @pyqtSlot(bool)
     def showEventbuttonhelp(self, _:bool = False) -> None:
-        from help import eventbuttons_help # pyright: ignore [attr-defined] # pylint: disable=no-name-in-module
+        from .help import eventbuttons_help # pyright: ignore [attr-defined] # pylint: disable=no-name-in-module
         self.helpdialog = self.aw.showHelpDialog(
                 self,            # this dialog as parent
                 self.helpdialog, # the existing help dialog
@@ -3476,7 +3476,7 @@ class EventsDlg(ArtisanResizeablDialog):
 
     @pyqtSlot(bool)
     def showSliderHelp(self, _:bool = False) -> None:
-        from help import eventsliders_help # pyright: ignore [attr-defined] # pylint: disable=no-name-in-module
+        from .help import eventsliders_help # pyright: ignore [attr-defined] # pylint: disable=no-name-in-module
         self.helpdialog = self.aw.showHelpDialog(
                 self,            # this dialog as parent
                 self.helpdialog, # the existing help dialog
@@ -3485,7 +3485,7 @@ class EventsDlg(ArtisanResizeablDialog):
 
     @pyqtSlot(bool)
     def showEventannotationhelp(self, _:bool = False) -> None:
-        from help import eventannotations_help # pyright: ignore [attr-defined] # pylint: disable=no-name-in-module
+        from .help import eventannotations_help # pyright: ignore [attr-defined] # pylint: disable=no-name-in-module
         self.helpdialog = self.aw.showHelpDialog(
                 self,            # this dialog as parent
                 self.helpdialog, # the existing help dialog
