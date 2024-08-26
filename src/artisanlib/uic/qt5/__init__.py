@@ -1,0 +1,1 @@
+"""artisan dialogs for Qt5"""

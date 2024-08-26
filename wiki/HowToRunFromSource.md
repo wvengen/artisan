@@ -97,6 +97,19 @@ While this document is presumed free of errors as of January 2024, there is no g
    ```
 
 
+### UI files
+
+Some UI components are described using `.ui` files, which are compiled to
+corresponding `.py` files, before they can be used. The generated files
+are part of the source code, so if you change any `.ui` file, make sure
+to run `build_ui.py`.
+
+This script tries to generate code for both PyQt5 and PyQt6, but during
+during development it is ok to have only one of these installed. Only
+make sure to install both and re-run the script, before you open a PR
+or commit to the main repository.
+
+
 ### Installing and running dev tools
 
 ```
