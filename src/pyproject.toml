@@ -39,6 +39,9 @@ classifiers = [
 'Issue Tracker' = 'https://github.com/artisan-roaster-scope/artisan/issues'
 'Changelog' = 'https://github.com/artisan-roaster-scope/artisan/blob/master/wiki/ReleaseHistory.md'
 
+[project.gui-scripts]
+artisan = "artisanlib.main:main"
+
 ## setuptools
 
 [build-system]
