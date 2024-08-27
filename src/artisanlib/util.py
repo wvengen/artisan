@@ -392,20 +392,16 @@ def getAppPath() -> str:
 
 @functools.lru_cache(maxsize=None)  #for Python >= 3.9 can use @functools.cache
 def getResourcePath() -> str:
-    platf = platform.system()
-    if platf == 'Darwin':
-        if appFrozen():
-            return QCoreApplication.applicationDirPath() + '/../Resources/'
-        return os.path.dirname(os.path.realpath(__file__)) + '/../includes/'
-    if platf == 'Linux':
-        if appFrozen():
+    if appFrozen():
+        platf = platform.system()
+        if platf == 'Darwin':
+            return os.path.join(QCoreApplication.applicationDirPath(), '..', 'Resources')
+        elif platf == 'Linux':
             return QCoreApplication.applicationDirPath() + '/'
-        return os.path.dirname(os.path.realpath(__file__)) + '/../includes/'
-    if platf == 'Windows':
-        if appFrozen():
+        elif platf == 'Windows':
             return os.path.dirname(sys.executable) + '\\'
-        return os.path.dirname(os.path.realpath(__file__)) + '\\..\\includes\\'
-    return QCoreApplication.applicationDirPath() + '/'
+    else:
+        return os.path.join(os.path.dirname(os.path.realpath(__file__)), 'includes')
 
 # if share is True, the same (cache) file is shared between the Artisan and
 # ArtisanViewer apps
