@@ -14,25 +14,6 @@ from typing import Any
 # which should not be significant
 os.environ['OMP_NUM_THREADS'] = '1'
 
-# highDPI support must be set before creating the Application instance
-try:
-# the following two lines seem not to be needed any longer with Qt6.1
-#    if system() == 'Darwin':
-#        os.environ['QT_MAC_WANTS_LAYER'] = '1' # some widgets under PyQt  on macOS seem not to update properly without this (see the discussion on the pyqt mailing list from 15.6.2020 "Widgets are not updated - is this a bug?")
-    try:
-        #pylint: disable = E, W, R, C
-        from PyQt6.QtWidgets import QApplication  # @UnusedImport @Reimport  @UnresolvedImport
-        from PyQt6.QtCore import Qt     # @Reimport # @UnusedImport @Reimport  @UnresolvedImport
-    except Exception: # pylint: disable=broad-except
-        #pylint: disable = E, W, R, C
-        from PyQt5.QtWidgets import QApplication # type: ignore # @UnusedImport @Reimport  @UnresolvedImport
-        from PyQt5.QtCore import Qt # type: ignore # @UnusedImport @Reimport  @UnresolvedImport
-        QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling) # type: ignore
-        QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps) # type: ignore
-#    os.environ["QT_SCALE_FACTOR"] = "1"
-except Exception: # pylint: disable=broad-except
-    pass
-
 # on Qt5, the platform plugin cocoa/windows is not found in the plugin directory (despite the qt.conf file) if we do not
 # extend the libraryPath accordingly
 if system().startswith('Windows'):

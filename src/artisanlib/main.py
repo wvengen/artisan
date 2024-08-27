@@ -164,6 +164,9 @@ except ImportError:
     except ImportError:
         import sip # type: ignore # @Reimport @UnresolvedImport @UnusedImport
 
+    # highDPI support must be set before creating the Application instance
+    QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling) # type: ignore
+    QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps) # type: ignore
 
 
 from artisanlib.suppress_errors import suppress_stdout_stderr
