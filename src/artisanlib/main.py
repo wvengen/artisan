@@ -25911,14 +25911,7 @@ def initialize_locale(my_app:Artisan) -> str:
         except Exception: # pylint: disable=broad-except
             qt_trans_path = QLibraryInfo.location(QLibraryInfo.TranslationsPath) # type: ignore
 
-        trans_paths:List[str] = []
-        # add the translations path for binary installations
-        if sys.platform.startswith('darwin'):
-            trans_paths.append(QApplication.applicationDirPath() + '/../translations')
-        else:
-            trans_paths.append(QApplication.applicationDirPath() + '/translations')
-        # add the translations path for source installations
-        trans_paths.append('translations')
+        trans_paths:List[str] = [os.path.join(os.path.dirname(__file__), 'translations')]
 
         #load Qt translations
         for qt_trans_module in qt_translation_modules:
