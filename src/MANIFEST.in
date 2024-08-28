@@ -2,4 +2,5 @@ include README.txt
 include LICENSE
 graft artisanlib
 graft test
+exclude artisanlib/translations/*.ts # saves 4MB, maybe put them in sdist but not in wheels?
 global-exclude __pycache__ *.pyc
