@@ -2,6 +2,7 @@
 .svn/
 src/build/
 src/dist/
+src/Artisan.egg-info/
 src/artisan.py.bak
 src/artisan.py.org.py
 src/artisan.py.python2.py
@@ -10,6 +11,7 @@ src/artisan.py.zip
 src/Artisan.app/
 src/.settings/
 src/translations copy/
+src/artisanlib/translations copy/
 src/Artisan-10.6.app/
 src/.project
 src/.pydevproject
@@ -26,7 +28,7 @@ outbox/
 #   To remove these files from the repository a commit must first be made 
 #   with the these files deleted, then this section should be uncommented.
 #to remove initially make a commit with thee files deleted then uncomment this section
-#src/uic/[!_]*.py
-#src/translations/*.qm
-#src/help/[!_]*.py
+#src/artisanlib/uic/qt*/[!_]*.py
+#src/artisanlib/translations/*.qm
+#src/artisanlib/help/[!_]*.py
 #doc/help_dialogs/Output_html/[!_]*.html

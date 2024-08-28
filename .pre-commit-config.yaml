@@ -5,15 +5,15 @@ repos:
     -   id: check-yaml
     -   id: check-xml
     -   id: end-of-file-fixer
-        exclude: ^(src/uic/|src/translations/|src/includes/)
+        exclude: ^src/artisanlib/(uic/qt[56]/|translations/|includes/)
     -   id: trailing-whitespace
-        exclude: ^(src/uic/|src/translations/|src/includes/)
+        exclude: ^src/artisanlib/(uic/qt[56]/|translations/|includes/)
     -   id: double-quote-string-fixer
-        exclude: ^(src/uic/|src/translations/|src/includes/)
+        exclude: ^src/artisanlib/(uic/qt[56]/|translations/|includes/)
     -   id: check-ast
 -   repo: https://github.com/asottile/pyupgrade
     rev: v3.9.0
     hooks:
     -   id: pyupgrade
         args: [--py38-plus]
-        exclude: ^(src/uic/|src/translations/|src/includes/)
+        exclude: ^src/artisanlib/(uic/qt[56]/|translations/|includes/)
