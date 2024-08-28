@@ -90,6 +90,10 @@ from functools import reduce as freduce
 #    pass
 ### MONKEY PATCH END:
 
+# limit the number of numpy threads to 1 to limit the total number of threads taking into account a potential performance reduction on array operations using blas,
+# which should not be significant. Allow overriding by the user.
+os.environ['OMP_NUM_THREADS'] = os.environ.get('OMP_NUM_THREADS', '1') # |= '1' for Python 3.9+
+
 try: # activate support for hiDPI screens on Windows
     if str(platform.system()).startswith('Windows'):
         os.environ['QT_AUTO_SCREEN_SCALE_FACTOR'] = '1'
